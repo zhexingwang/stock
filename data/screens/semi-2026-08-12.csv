@@ -1,0 +1,7 @@
+ticker,short_name,sector,industry,drawdown_52w,recovery_score,verdict,ev_to_sales,operating_margin,current_ratio
+MU,"Micron Technology, Inc.",Technology,Semiconductors,-0.2842104415965666,57.1,監視リスト,10.648,0.80370003,3.425
+KLAC,KLA Corporation,Technology,Semiconductor Equipment & Materials,-0.33555398595226404,55.1,監視リスト,19.38,0.42486,2.876
+LRCX,Lam Research Corporation,Technology,Semiconductor Equipment & Materials,-0.2813559797109123,54.9,様子見,16.71,0.37390998,2.629
+AMAT,"Applied Materials, Inc.",Technology,Semiconductor Equipment & Materials,-0.27301523464514177,54.4,様子見,14.345,0.31896,2.508
+INTC,Intel Corporation,Technology,Semiconductors,-0.306726285001349,51.4,様子見,9.28,0.12189999,1.604
+QCOM,QUALCOMM Incorporated,Technology,Semiconductors,-0.3495305457919954,51.0,様子見,4.035,0.18528,2.016
