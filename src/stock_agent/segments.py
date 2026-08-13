@@ -56,8 +56,27 @@ THEMES: dict[str, ThemeSpec] = {
         title_ja="日本内需・インバウンド",
         thesis="賃金・観光・サービス消費の回復で、国内需要感応度の高い業種のマージン改善を狙う。",
         sectors=("Consumer Cyclical", "Consumer Defensive", "Industrials"),
-        industries_contains=("Travel", "Restaurant", "Retail", "Railroads", "Lodging"),
+        industries_contains=(
+            "Travel",
+            "Restaurant",
+            "Retail",
+            "Railroads",
+            "Lodging",
+            "Department",
+            "Grocery",
+            "Apparel",
+            "Airlines",
+            "Leisure",
+        ),
         macro_signals=("訪日客数", "実質賃金", "円安/円高", "個人消費"),
+    ),
+    "japan_autos": ThemeSpec(
+        key="japan_autos",
+        title_ja="日本自動車",
+        thesis="円安は採算を支える一方、関税・中国・EV競争で売られた完成車・部品の回復力を選別する。",
+        sectors=("Consumer Cyclical", "Consumer Defensive", "Industrials"),
+        industries_contains=("Auto", "Vehicle", "Auto Parts"),
+        macro_signals=("ドル円", "米国関税", "中国販売", "EV浸透"),
     ),
 }
 

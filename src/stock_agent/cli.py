@@ -6,6 +6,7 @@ from pathlib import Path
 
 from stock_agent.data import fetch_fundamentals, fetch_price_metrics, utc_today
 from stock_agent.filings import extract_quantitative_facts, list_recent_filings
+from stock_agent.japan import write_japan_report
 from stock_agent.models import to_dict
 from stock_agent.report import write_report
 from stock_agent.scoring import score_recovery
@@ -93,6 +94,17 @@ def cmd_report(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_japan_report(args: argparse.Namespace) -> int:
+    paths = write_japan_report(
+        universe_path=args.universe,
+        out_dir=args.out,
+        screen_dir=args.screen_dir,
+    )
+    print(f"wrote: {paths['report']}")
+    print(f"profile: {paths['profile']}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="stock-agent",
@@ -131,6 +143,12 @@ def build_parser() -> argparse.ArgumentParser:
     p_report.add_argument("--ticker", required=True)
     p_report.add_argument("--out", default="reports")
     p_report.set_defaults(func=cmd_report)
+
+    p_jp = sub.add_parser("japan-report", help="日本国内の底値回復専用レポート")
+    p_jp.add_argument("--universe", default="examples/universe_jp.csv")
+    p_jp.add_argument("--out", default="reports")
+    p_jp.add_argument("--screen-dir", default="data/screens")
+    p_jp.set_defaults(func=cmd_japan_report)
 
     return parser
 

@@ -16,8 +16,9 @@ python -m stock_agent analyze --ticker AAPL
 # セグメント仮説から候補抽出
 python -m stock_agent segment --theme semiconductors --universe examples/universe_us.csv
 
-# レポート下書き生成
-python -m stock_agent report --ticker AAPL --out reports/
+# 日本国内レポート
+python -m stock_agent japan-report --universe examples/universe_jp.csv --out reports/
+
 ```
 
 ## 推奨フロー

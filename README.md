@@ -47,8 +47,11 @@ python -m stock_agent segment \
   --universe examples/universe_us.csv \
   --out data/screens/semi.csv
 
-# 調査レポート下書き
-python -m stock_agent report --ticker INTC --out reports/
+# 日本国内レポート
+python -m stock_agent japan-report \
+  --universe examples/universe_jp.csv \
+  --out reports/
+
 ```
 
 日本株はティッカー末尾に `.T`（例: `8035.T`）。

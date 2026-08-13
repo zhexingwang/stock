@@ -1,5 +1,5 @@
 from stock_agent.models import FundamentalMetrics, PriceMetrics
-from stock_agent.scoring import score_recovery
+from stock_agent.scoring import classify_recovery_stage, score_recovery
 
 
 def _price(**kwargs):
@@ -69,3 +69,10 @@ def test_weak_balance_sheet_flags():
     )
     assert "weak_liquidity" in score.flags
     assert "high_leverage" in score.flags
+
+
+def test_recovery_stage_bottom_vs_rebound():
+    assert classify_recovery_stage(-0.45, -0.20) == "底値圏"
+    assert classify_recovery_stage(-0.45, 0.50) == "リバウンド途中"
+    assert classify_recovery_stage(-0.08, 0.10) == "高値圏"
+    assert classify_recovery_stage(-0.22, -0.05) == "調整"

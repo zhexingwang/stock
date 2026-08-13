@@ -63,5 +63,7 @@
 ## 利用ツール
 
 - `python -m stock_agent ...` : スクリーニング・財務取得・セグメント調査・レポート下書き
+- `python -m stock_agent japan-report` : 日本国内専用の底値回復レポート
 - 公開データ: Yahoo Finance / SEC EDGAR 等（APIキー不要の経路を優先）
+- 日本株の一次開示は EDINET / 株探リンクを併記し、財務トレンドは Yahoo 経由で抽出
 - 詳細手順は `docs/strategy.md` と `docs/workflow.md` を参照

@@ -140,3 +140,19 @@ def score_recovery(price: PriceMetrics, fund: FundamentalMetrics) -> RecoverySco
         verdict=verdict,
         rationale=rationale,
     )
+
+
+def classify_recovery_stage(drawdown_52w: float | None, return_6m: float | None) -> str:
+    """価格位置。底値買い戦略では『底値圏』を優先し、リバウンド途中は遅れて入る。"""
+    if drawdown_52w is None:
+        return "不明"
+    if drawdown_52w > -0.15:
+        return "高値圏"
+    bounced = return_6m is not None and return_6m > 0.10
+    if drawdown_52w <= -0.30 and bounced:
+        return "リバウンド途中"
+    if drawdown_52w <= -0.30:
+        return "底値圏"
+    if bounced:
+        return "調整後リバウンド"
+    return "調整"

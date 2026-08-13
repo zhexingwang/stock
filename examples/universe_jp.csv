@@ -1,31 +1,67 @@
-ticker,name
-7203.T,Toyota
-6758.T,Sony
-9984.T,SoftBank Group
-6861.T,Keyence
-8306.T,MUFG
-9432.T,NTT
-4063.T,Shin-Etsu
-6501.T,Hitachi
-6902.T,Denso
-8035.T,Tokyo Electron
-6857.T,Advantest
-6146.T,Disco
-6367.T,Daikin
-4519.T,Chugai
-4568.T,Daiichi Sankyo
-4502.T,Takeda
-3382.T,Seven & i
-8267.T,Aeon
-9020.T,JR East
-9022.T,JR Central
-9101.T,Nippon Yusen
-5401.T,Nippon Steel
-5411.T,JFE
-7011.T,Mitsubishi Heavy
-5803.T,Fujikura
-6981.T,Murata
-7751.T,Canon
-6954.T,Fanuc
-6503.T,Mitsubishi Electric
-2802.T,Ajinomoto
+ticker,name,name_ja,segment
+7203.T,Toyota,トヨタ自動車,autos
+7267.T,Honda,ホンダ,autos
+7269.T,Suzuki,スズキ,autos
+7201.T,Nissan,日産自動車,autos
+7202.T,Isuzu,いすゞ自動車,autos
+6902.T,Denso,デンソー,autos
+3382.T,Seven & i,セブン&アイ,domestic
+8267.T,Aeon,イオン,domestic
+9983.T,Fast Retailing,ファーストリテイリング,domestic
+9843.T,Nitori,ニトリ,domestic
+3086.T,J.Front Retailing,J.フロント リテイリング,domestic
+8233.T,Takashimaya,高島屋,domestic
+4661.T,Oriental Land,オリエンタルランド,domestic
+8136.T,Sanrio,サンリオ,domestic
+2802.T,Ajinomoto,味の素,domestic
+2502.T,Asahi Group,アサヒグループ,domestic
+2914.T,JT,日本たばこ産業,domestic
+4452.T,Kao,花王,domestic
+4911.T,Shiseido,資生堂,domestic
+9020.T,JR East,JR東日本,domestic
+9021.T,JR West,JR西日本,domestic
+9022.T,JR Central,JR東海,domestic
+9201.T,JAL,日本航空,domestic
+9202.T,ANA,ANAホールディングス,domestic
+9005.T,Tokyu,東急,domestic
+6098.T,Recruit,リクルート,domestic
+4755.T,Rakuten,楽天グループ,domestic
+8035.T,Tokyo Electron,東京エレクトロン,semicon
+6857.T,Advantest,アドバンテスト,semicon
+6146.T,Disco,ディスコ,semicon
+6920.T,Lasertec,レーザーテック,semicon
+6981.T,Murata,村田製作所,semicon
+6762.T,TDK,TDK,semicon
+4063.T,Shin-Etsu,信越化学,semicon
+6501.T,Hitachi,日立製作所,semicon
+6861.T,Keyence,キーエンス,semicon
+6954.T,Fanuc,ファナック,semicon
+6367.T,Daikin,ダイキン工業,semicon
+5803.T,Fujikura,フジクラ,semicon
+6758.T,Sony,ソニーグループ,semicon
+4519.T,Chugai,中外製薬,healthcare
+4568.T,Daiichi Sankyo,第一三共,healthcare
+4502.T,Takeda,武田薬品,healthcare
+4543.T,Terumo,テルモ,healthcare
+7733.T,Olympus,オリンパス,healthcare
+8306.T,MUFG,三菱UFJ,finance
+8316.T,SMFG,三井住友FG,finance
+8411.T,Mizuho,みずほFG,finance
+8591.T,ORIX,オリックス,finance
+8801.T,Mitsui Fudosan,三井不動産,finance
+8802.T,Mitsubishi Estate,三菱地所,finance
+1925.T,Daiwa House,大和ハウス,finance
+8001.T,Itochu,伊藤忠,trading
+8058.T,Mitsubishi Corp,三菱商事,trading
+8031.T,Mitsui,三井物産,trading
+5401.T,Nippon Steel,日本製鉄,materials
+5411.T,JFE,JFEホールディングス,materials
+7011.T,Mitsubishi Heavy,三菱重工業,materials
+1605.T,Inpex,INPEX,materials
+5020.T,ENEOS,ENEOSホールディングス,materials
+9432.T,NTT,NTT,telecom
+9433.T,KDDI,KDDI,telecom
+9984.T,SoftBank Group,ソフトバンクグループ,telecom
+9101.T,NYK,日本郵船,materials
+6503.T,Mitsubishi Electric,三菱電機,semicon
+7751.T,Canon,キヤノン,semicon

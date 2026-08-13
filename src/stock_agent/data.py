@@ -14,17 +14,27 @@ def utc_today() -> str:
 
 
 def load_universe(path: str) -> list[str]:
+    meta = load_universe_meta(path)
+    return [row["ticker"] for row in meta]
+
+
+def load_universe_meta(path: str) -> list[dict[str, str]]:
     df = pd.read_csv(path)
     col = "ticker" if "ticker" in df.columns else df.columns[0]
-    tickers = (
-        df[col]
-        .dropna()
-        .astype(str)
-        .str.strip()
-        .str.upper()
-        .tolist()
-    )
-    return [t for t in tickers if t and t != "TICKER"]
+    rows: list[dict[str, str]] = []
+    for _, rec in df.iterrows():
+        ticker = str(rec[col]).strip().upper()
+        if not ticker or ticker == "TICKER":
+            continue
+        rows.append(
+            {
+                "ticker": ticker,
+                "name": str(rec["name"]).strip() if "name" in df.columns and pd.notna(rec.get("name")) else ticker,
+                "name_ja": str(rec["name_ja"]).strip() if "name_ja" in df.columns and pd.notna(rec.get("name_ja")) else "",
+                "segment": str(rec["segment"]).strip() if "segment" in df.columns and pd.notna(rec.get("segment")) else "",
+            }
+        )
+    return rows
 
 
 def _safe_float(value: object) -> float | None:
