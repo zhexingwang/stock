@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import pandas as pd
 import yfinance as yf
 
-from stock_agent.data import load_universe_meta, utc_today
+from stock_agent.data import load_universe_meta
 from stock_agent.screen import profile_universe, save_screen
 
 SEGMENT_LABELS = {
@@ -22,12 +23,12 @@ SEGMENT_LABELS = {
 
 SEGMENT_THESIS = {
     "domestic": (
-        "実質賃金のプラス定着とインバウンドが消費・交通・小売の稼働を支える。"
-        "ただし指数が高値圏のため、内需でも『まだ底値圏』の銘柄に限定する。"
+        "賃金とインバウンドは下支え候補だが、原油高は小売マージンの逆風。"
+        "株価が深いだけでは足りず、利益率とFCFが落ちていないかを先に見る。"
     ),
     "semicon": (
-        "AI・先端投資はテーマとして強い。高値更新後の調整は買い場になり得るが、"
-        "バリュエーションが高く『安い』とは限らない。"
+        "10月のAI関連調整でドローダウンが深まった銘柄が増えた。"
+        "倍率（EV/EBITDA、P/B）がまだ高ければ、底値圏でも『安い』とは扱わない。"
     ),
     "autos": (
         "円安は輸出採算にプラスだが、関税・中国需要・EV競争が構造リスク。"
@@ -53,40 +54,83 @@ SEGMENT_THESIS = {
 }
 
 NAME_NOTES = {
-    "8267.T": (
-        "本命の底値候補。売上・営業利益は増えているのに株価は半値近く。"
-        "論点はレバレッジ（D/E約186、有利子負債4兆円超）と薄利（営業利益率2.6%）。"
-        "賃上げ・インバウンドが続けば数量は支えられるが、原油高と金利は逆風。"
-        "次の確認: 有報の負債明細、GMS再編、株主還元。分割なら小さく、増資観測が出たら撤退。"
+    "6762.T": (
+        "8月は調整後リバウンドで見送りだったが、今回は底値圏かつ監視リスト。"
+        "EV/EBITDAとPERが、同じように売られた電子部品・装置より低い。"
+        "TTMのFCFは赤字だが、年次FCFは2024年3月期から2026年3月期まで黒字。"
+        "確認するのは直近四半期の運転資本であり、通期の構造赤字ではない。"
+        "短信でその切り分けができるまでサイズは小さくする。"
     ),
     "4568.T": (
-        "売上は2年で1.60→2.12兆円と伸びているが、営業利益は直近減、FCFは2期連続赤字。"
-        "成長株の調整であり、内需回復とは別物。パイプラインと研究開発費の回収時期がカタリスト。"
-        "財務は流動比率2.9で生存は問題になりにくい。PER約20は極端な割安ではない。"
-        "エントリーは短信でFCF改善が見えてから。"
+        "底値圏の監視は継続。売上成長は残る一方、FCF赤字は8月から解消していない。"
+        "ヘルスケアのパイプライン調整であり、内需回復テーマとは別。"
+        "流動性は厚く、即時の生存懸念は小さい。エントリーはFCF改善の確認後。"
+    ),
+    "8267.T": (
+        "ユニバースで最も深いドローダウン。EV/EBITDAは高くない。"
+        "ただし8月以降に株価がさらに落ち、営業利益率は薄く、TTMのFCFは赤字。"
+        "2月期の年次FCFは直近まで黒字なので、通期のキャッシュ創出は残っている。障害は期中の悪化と高負債。"
+        "定量スコアの上昇は事業改善ではなく下落が深まった結果。"
+        "境界例: 監視は続けるが、新規の買い増しは見送り寄り。増資や利払い負担の悪化が出たら撤退。"
     ),
     "4519.T": (
-        "利益率・ネットキャッシュはユニバース屈指。下落はバリュエーション圧縮寄り。"
-        "EV/Sales約8倍は『底値の割安』ではない。回復しても上値が限定されやすい。"
-        "監視は続けるが、サイズを大きくする優先度はイオンより低い。"
+        "利益率・キャッシュはユニバース屈指で、下落は続くが生存懸念は小さい。"
+        "EV/Salesは高く、底値の割安ではない。サイズを上げる優先度はTDKと第一三共の次。"
     ),
-    "8801.T": (
-        "不動産は金利前倒し観測の直撃ゾーン。営業利益は増えているがFCFは直近赤字、負債4.6兆円。"
-        "P/B 1.22は極端な割安ではない。日銀パスが見えるまで様子見が妥当。"
+    "5803.T": (
+        "AI・配線テーマの往復で底値圏に入った。営業利益率は高い。"
+        "P/BとEV/EBITDAはまだ高く、1年リターンもプラス圏。"
+        "『売られた高値株』であり、割安な底値ではない。受注が崩れていなければ押し目候補、崩れていれば見送り。"
+    ),
+    "6146.T": (
+        "半導体装置の調整で底値圏。マージンは極めて高いが、EV/SalesとP/Bも高い。"
+        "質のある調整として様子見。安いという理由では買わない。"
+    ),
+    "7011.T": (
+        "FCFは厚く、高値圏から底値圏まで戻した。防衛・インフラの需要仮説は残る。"
+        "PERはまだ高く、売上成長の勢いは弱い。モメンタム剥落の様子見。"
     ),
     "6981.T": (
-        "財務は極めて厚いが、6ヶ月で+148%戻しており『安い時期』は過ぎている。"
-        "電子部品サイクルの押し目待ち。52週高値からまだ-34%あるので、再下落があれば再評価。"
+        "財務は厚いままだが、6ヶ月リターンが大きくリバウンド途中。"
+        "ドローダウンは8月より深い。エントリーは6ヶ月リターンが一服してから。"
+    ),
+    "8035.T": (
+        "2026-09-29に株式分割（Yahoo Finance上は5分割）。株価の絶対水準は8月と比較しない。"
+        "分割調整後の位置はリバウンド途中。FCFはプラスでネットキャッシュだが、倍率は高い。"
     ),
     "7201.T": (
-        "ディストレスト。FCF大幅赤字、D/E高、営業利益率2.6%。『安い』は構造問題の可能性が高い。"
-        "再編・資本政策の一次資料なしに大型化しない。ウォッチのみ。"
+        "定量スコアは監視リストまで上がったが、これはドローダウンが深まったため。"
+        "FCFの大幅赤字と高負債が続き、P/Bの低さはディストレスの表れ。"
+        "底だがキャッチ・オブ・フォーリング・ナイフ。見送り。"
     ),
     "4755.T": (
-        "内需テックだが負債が大きくFCF赤字。底値回復というよりバランスシート再建。"
-        "戦略の本命箱からは外す。"
+        "底値圏に入ったが、レバレッジが高くFCFは赤字。"
+        "底値回復ではなくバランスシート再建。見送り。"
+    ),
+    "9984.T": (
+        "リバウンド途中から底値圏へ落ちた。流動性・営業赤字・負債が重く、スコアは低い。"
+        "価格が底でも回復仮説を置かない。見送り。"
+    ),
+    "8801.T": (
+        "8月の底値圏から株価は戻り、今回は調整扱いで優先度を下げる。"
+        "負債は重く、金利が下がるパスが見えるまで様子見。"
     ),
 }
+
+# 結論で明示する優先順。定量スコア順ではなく、回復仮説が置けるかで並べる。
+PRIORITY = [
+    ("6762.T", "新規の監視筆頭", "底値圏。電子部品の調整銘柄のなかでは倍率が高すぎない。年次FCFは黒字で、TTM赤字の中身が条件。"),
+    ("4568.T", "監視継続", "底値圏のまま。ヘルスケア枠。FCF改善前にサイズを上げない。"),
+    ("8267.T", "監視継続・新規は見送り寄り", "最も深い下落。8月より利益の質が悪化し、スコア上昇をエントリー理由にしない。"),
+    ("4519.T", "様子見", "事業の質は高いがEV/Salesは高い。"),
+    ("5803.T", "様子見", "底値圏に入ったが高倍率のテーマ株。割安ではない。"),
+    ("6146.T", "様子見", "高マージンの装置株。倍率は高く、様子見。"),
+    ("7011.T", "様子見", "FCFは厚いがPERは高い。底値圏入りはモメンタム剥落。"),
+    ("6981.T", "押し目待ち", "リバウンド途中。財務の厚さだけで今は買わない。"),
+    ("7201.T", "見送り", "フォーリングナイフ。定量の監視リストは採用しない。"),
+    ("4755.T", "見送り", "フォーリングナイフ。高負債とFCF赤字。"),
+    ("9984.T", "見送り", "底値圏でも生存と利益の質が不足。"),
+]
 
 
 def _code(ticker: str) -> str:
@@ -210,6 +254,114 @@ def attach_universe_meta(df: pd.DataFrame, universe_path: str) -> pd.DataFrame:
     return out
 
 
+def jst_today() -> str:
+    return datetime.now(ZoneInfo("Asia/Tokyo")).strftime("%Y-%m-%d")
+
+
+def jst_now_label() -> str:
+    return datetime.now(ZoneInfo("Asia/Tokyo")).strftime("%Y-%m-%d %H:%M JST")
+
+
+def comparable_price_change(
+    old: float | None,
+    new: float | None,
+    return_6m_new: float | None,
+) -> tuple[float | None, bool]:
+    """株価変化率と、分割などで絶対水準が比較できない疑い。"""
+    if old is None or new is None or pd.isna(old) or pd.isna(new) or float(old) == 0:
+        return None, False
+    change = float(new) / float(old) - 1.0
+    six_m = None if return_6m_new is None or pd.isna(return_6m_new) else float(return_6m_new)
+    split_suspect = change < -0.45 and (six_m is None or six_m > -0.25)
+    return change, split_suspect
+
+
+def find_previous_profile(screen_dir: str, day: str) -> tuple[pd.DataFrame | None, str | None]:
+    paths = sorted(Path(screen_dir).glob("jp-profile-*.csv"))
+    older: list[Path] = []
+    for path in paths:
+        stamp = path.stem.replace("jp-profile-", "")
+        if stamp < day:
+            older.append(path)
+    if not older:
+        return None, None
+    path = older[-1]
+    return pd.read_csv(path), path.name
+
+
+def build_update_section(current: pd.DataFrame, previous: pd.DataFrame, previous_name: str) -> str:
+    prev = previous.copy()
+    if "name_ja" not in prev.columns:
+        prev["name_ja"] = prev.get("short_name", prev["ticker"])
+    merged = current.merge(prev, on="ticker", suffixes=("_new", "_old"))
+    lines = [
+        f"比較元: `{previous_name}` と今回の全件プロファイル。",
+        "株価が45%超下落しているのに6ヶ月リターンがそこまで崩れていない銘柄は、分割などで絶対価格を比較しない。",
+        "",
+        "| ticker | 銘柄 | 株価変化 | DD52w 前回→今回 | ステージ | スコア | 判定 |",
+        "|--------|------|----------|-----------------|----------|--------|------|",
+    ]
+    rows = []
+    for _, row in merged.iterrows():
+        change, split_suspect = comparable_price_change(
+            row.get("last_price_old"),
+            row.get("last_price_new"),
+            row.get("return_6m_new"),
+        )
+        stage_changed = row.get("stage_old") != row.get("stage_new")
+        verdict_changed = row.get("verdict_old") != row.get("verdict_new")
+        dd_old = row.get("drawdown_52w_old")
+        dd_new = row.get("drawdown_52w_new")
+        dd_jump = (
+            dd_old is not None
+            and dd_new is not None
+            and not pd.isna(dd_old)
+            and not pd.isna(dd_new)
+            and abs(float(dd_new) - float(dd_old)) >= 0.05
+        )
+        if not (stage_changed or verdict_changed or dd_jump or split_suspect):
+            continue
+        if split_suspect:
+            px = "比較不能（分割の可能性）"
+        else:
+            px = _pct(change)
+        name = row.get("name_ja_new") or row.get("name_ja_old") or row["ticker"]
+        score_old = row.get("recovery_score_old")
+        score_new = row.get("recovery_score_new")
+        rows.append(
+            (
+                float(dd_new) if dd_new is not None and not pd.isna(dd_new) else 0,
+                f"| {row['ticker']} | {name} | {px} | {_pct(dd_old)} → {_pct(dd_new)} | "
+                f"{row.get('stage_old')} → {row.get('stage_new')} | "
+                f"{_num(score_old, 1)} → {_num(score_new, 1)} | "
+                f"{row.get('verdict_old')} → {row.get('verdict_new')} |",
+            )
+        )
+    if not rows:
+        return "\n".join(lines + ["変化の大きい銘柄はなし"])
+    rows.sort(key=lambda item: item[0])
+    lines.extend(line for _, line in rows)
+    return "\n".join(lines)
+
+
+def _priority_table(profile: pd.DataFrame) -> str:
+    by_ticker = {row["ticker"]: row for _, row in profile.iterrows()}
+    lines = [
+        "| 扱い | 銘柄 | ステージ | DD52w | スコア | 定量判定 | 理由 |",
+        "|------|------|----------|-------|--------|----------|------|",
+    ]
+    for ticker, label, reason in PRIORITY:
+        row = by_ticker.get(ticker)
+        if row is None:
+            continue
+        name = row.get("name_ja") or ticker
+        lines.append(
+            f"| {label} | {name}（{ticker}） | {row.get('stage')} | {_pct(row.get('drawdown_52w'))} | "
+            f"{_num(row.get('recovery_score'), 1)} | {row.get('verdict')} | {reason} |"
+        )
+    return "\n".join(lines)
+
+
 def fetch_index_snapshot() -> dict[str, dict]:
     symbols = {
         "n225": "^N225",
@@ -221,15 +373,20 @@ def fetch_index_snapshot() -> dict[str, dict]:
         t = yf.Ticker(symbol)
         hist = t.history(period="1y", auto_adjust=True)
         if hist.empty:
-            snap[key] = {"symbol": symbol, "last": None, "return_1y": None, "drawdown_52w": None}
+            snap[key] = {"symbol": symbol, "last": None, "return_1y": None, "drawdown_52w": None, "as_of": None}
             continue
-        close = hist["Close"]
+        close = hist["Close"].dropna()
+        if close.empty:
+            snap[key] = {"symbol": symbol, "last": None, "return_1y": None, "drawdown_52w": None, "as_of": None}
+            continue
         last = float(close.iloc[-1])
         peak = float(close.tail(252).max())
         year_ago = float(close.iloc[0])
+        as_of = str(close.index[-1])[:10]
         snap[key] = {
             "symbol": symbol,
             "last": last,
+            "as_of": as_of,
             "return_1y": (last / year_ago - 1.0) if year_ago else None,
             "drawdown_52w": (last / peak - 1.0) if peak else None,
         }
@@ -299,8 +456,14 @@ def build_name_section(row: pd.Series, trend: dict) -> str:
 """
 
 
-def generate_japan_report(universe_path: str, profile: pd.DataFrame) -> str:
-    now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+def generate_japan_report(
+    universe_path: str,
+    profile: pd.DataFrame,
+    previous: pd.DataFrame | None = None,
+    previous_name: str | None = None,
+) -> str:
+    now = jst_now_label()
+    day = jst_today()
     idx = fetch_index_snapshot()
     n225 = idx.get("n225", {})
     fx = idx.get("usdjpy", {})
@@ -314,17 +477,29 @@ def generate_japan_report(universe_path: str, profile: pd.DataFrame) -> str:
         (profile["drawdown_52w"] <= -0.25) & (profile["stage"] != "底値圏")
     ].copy()
 
-    # Deep-dive: 底値圏を優先、監視リスト、ディストレスト近傍
-    deep_tickers = list(bottom["ticker"].head(5))
-    for t in list(watch["ticker"]) + ["7201.T", "4755.T"]:
-        if t not in deep_tickers and t in set(profile["ticker"]) and len(deep_tickers) < 8:
-            deep_tickers.append(t)
+    known = set(profile["ticker"])
+    deep_tickers = [ticker for ticker, _, _ in PRIORITY if ticker in known]
 
     deep_sections = []
     for ticker in deep_tickers:
         row = profile.loc[profile["ticker"] == ticker].iloc[0]
         trend = extract_jp_financial_trend(ticker)
         deep_sections.append(build_name_section(row, trend))
+
+    if previous is not None and previous_name:
+        update_md = build_update_section(profile, previous, previous_name)
+    else:
+        update_md = "前回プロファイルがないため、差分表はなし。"
+
+    n225_dd_val = n225.get("drawdown_52w")
+    if n225_dd_val is None or pd.isna(n225_dd_val):
+        market_state = "指数位置は未取得"
+    elif n225_dd_val > -0.08:
+        market_state = "高値圏"
+    elif n225_dd_val > -0.20:
+        market_state = "高値からの調整局面であり、指数自体は底値圏ではない"
+    else:
+        market_state = "指数の下落が深く、市場全体も底値の議論に入る"
 
     segment_blocks = []
     for key, label in SEGMENT_LABELS.items():
@@ -369,70 +544,76 @@ def generate_japan_report(universe_path: str, profile: pd.DataFrame) -> str:
     n225_last = _num(n225.get("last"), 0)
     n225_dd = _pct(n225.get("drawdown_52w"))
     n225_1y = _pct(n225.get("return_1y"))
+    n225_asof = n225.get("as_of") or "n/a"
     fx_last = _num(fx.get("last"), 2)
+    fx_asof = fx.get("as_of") or "n/a"
+    topix_last = _num(topix.get("last"), 1)
     topix_dd = _pct(topix.get("drawdown_52w"))
+    topix_asof = topix.get("as_of") or "n/a"
+    priority_md = _priority_table(profile)
 
-    bottom_names = "、".join(
-        f"{r.get('name_ja') or r['ticker']}" for _, r in bottom.head(5).iterrows()
-    ) or "なし"
-    watch_names = "、".join(
-        f"{r.get('name_ja') or r['ticker']}" for _, r in watch.head(5).iterrows()
-    ) or "なし"
-
-    report = f"""# 日本国内 底値回復レポート（{utc_today()}）
+    report = f"""# 日本国内 底値回復レポート（{day}）
 
 - 作成: {now}
+- 前回: `reports/2026-08-13-japan-domestic.md`（価格は2026-08-13前後）
 - 対象: 東証ユニバース {len(profile)} 銘柄（`examples/universe_jp.csv`）
-- データ: Yahoo Finance（価格・財務）、指数 `^N225` / `1306.T` / `USDJPY=X`
-- 開示: 日本株はSEC対象外のため、有報相当の年次PL/CFをYahoo経由で抽出。一次資料はEDINET・株探リンクを併記
+- データ: Yahoo Finance（価格・財務）。指数 `^N225` / `1306.T` / `USDJPY=X`
+- 開示: 日本株はSEC対象外のため、有報相当の年次PL/CFをYahoo経由で抽出。一次資料はEDINET・株探リンク
 - 本資料は調査メモであり、売買推奨ではない
 
 ## 1. 結論サマリ
 
-- 市場全体は**高値圏**。日経平均 {n225_last} 円（52週DD {n225_dd}、1年 {n225_1y}）、ドル円 {fx_last} 円、TOPIX連動ETFの52週DD {topix_dd}。
-- 2026年8月時点のマクロは、実質賃金のプラス定着・企業最高益・AI/半導体物色・銀行買いが指数を支えている。底値回復戦略は「指数を買う」ではなく、**指数高の陰で置いていかれた内需・個別ショック銘柄**を探す局面。
-- ユニバース内の底値圏: {len(bottom)} 銘柄。監視リスト以上: {len(watch)} 銘柄。高値圏: {len(skip_high)} 銘柄。
-- 優先監視: {watch_names}
-- 価格位置が『底値圏』: {bottom_names}
+- 市場は**{market_state}**。
+- 日経平均 {n225_last} 円（履歴最終日 {n225_asof}、52週DD {n225_dd}、1年 {n225_1y}）。8月13日調査時は約68,700円、52週DD約-5%。
+- ドル円 {fx_last}（履歴最終日 {fx_asof}）。8月調査時は約159円。
+- TOPIX連動ETF（1306） {topix_last} 円（履歴最終日 {topix_asof}、52週DD {topix_dd}）。日経平均より調整は浅く、下落は半導体比率の高い日経平均に寄っている。
+- ユニバース内の底値圏: {len(bottom)} 銘柄（8月は4銘柄）。監視リスト以上: {len(watch)} 銘柄。高値圏: {len(skip_high)} 銘柄。
+- スコアが上がった銘柄の多くは、事業が良くなったのではなく**下落が深まった**ため。定量の監視リストを、そのまま買い候補にしない。
 
-優先順位（調査時点）:
+優先順位は回復仮説が置けるかで並べる。スコア順ではない。
 
-| 順位 | 銘柄 | 理由 |
-|------|------|------|
-| 1 | イオン | 唯一、深い底＋内需マクロ追い風が重なる。ただし負債は重い |
-| 2 | 第一三共 | 底値圏で財務は厚い。FCF赤字が解消するまでサイズは小さく |
-| 3 | 中外製薬 | 質は高いが割安ではない。押し目の監視 |
-| 4 | 三井不動産 | 金利次第。今は様子見 |
-| — | 村田 | 財務は良いがリバウンド済み。押し目待ち |
-| — | 日産・楽天 | ディストレスト。底値戦略の本命にしない |
+{priority_md}
 
-**本日のスタンス（日本専用）**
+**今回のスタンス**
 
-1. 指数・メガバンク・商社の高値追いは戦略対象外
-2. 内需でまだ沈んでいる銘柄（小売・化粧品・一部交通）を本命の箱にする
-3. 半導体はテーマは正しいが、リバウンド途中が多くエントリーは押し目待ち
-4. 自動車は日産など個別破綻・再編リスクと、トヨタなど高値圏を明確に分離する
+1. 指数の調整は底値回復の本丸ではない。メガバンクと高値圏の商社は対象外のまま。
+2. 新規の監視筆頭は **TDK**。底値圏で、同じ調整の電子部品・装置より倍率が高すぎない。年次FCFは黒字で、赤字なのはTTM。直近四半期の中身が確認できるまでサイズは小さくする。
+3. **第一三共**は8月からの監視を継続。**イオン**は最も深いが、利益率とFCFが悪化しており、8月の「本命」からは一段下げる。
+4. フジクラ、ディスコ、三菱重工、村田はドローダウンが深まった。事業の質は残るが倍率は高く、割安な底値とは扱わない。
+5. 日産・楽天・ソフトバンクGは底値圏でもフォーリングナイフ。日産の定量判定が監視リストでも、定性では見送り。
+6. 三井不動産は底値圏から外れ、優先度を下げる。
+
+## 1b. 前回（2026-08-13）からの変化
+
+{update_md}
+
+確認できたコーポレートアクション: 東京エレクトロン（8035）は2026-09-29に5分割、三井住友FG（8316）は同日に2分割（Yahoo Financeの分割履歴）。これらの株価絶対値は8月と比較しない。
 
 ## 2. トップダウン（世の中の動向 → セグメント）
 
-出典メモ: アセットマネジメントOne「マーケットインサイト8月」(2026-08)、野村AM Market Navi (2026-08-06)、株探市況 (2026-08-12)。
+出典:
 
-| 動向 | 含意 | この戦略での扱い |
-|------|------|------------------|
-| 実質賃金が複数月プラス、賃上げ定着 | 内需の数量・単価が戻りやすい | **本命箱**。ただし高値の内需（オリエンタルランド等）は除外 |
-| インバウンド・サービス消費 | 交通・小売・レジャーの稼働 | JR・空運・小売の底値圏だけ拾う |
-| AI/半導体が指数を牽引、TOPIX最高値 | 物色が偏り、非AI内需が置いていかれる | 半導体は調整待ち。内需の相対弱さを候補にする |
-| 米金利・原油高で銀行・資源が買われる | 金融は高値、コスト高は内需の逆風 | 銀行は見送り。小売のマージン悪化は精査 |
-| 円は介入警戒つきの円安圏 | 輸出採算は支え、輸入コストは小売・食品の負担 | 輸出株の高値と内需のコスト高を同時に見る |
-| 日銀は利上げ前倒し観測 | 成長株の割引率、不動産・高負債に逆風 | 高レバレッジ内需は生存確認を厳しく |
+- 価格・財務: Yahoo Finance（取得 {now}）
+- 東京市場 2026-10-28: [OANDA 東京マーケットダイジェスト](https://www.oanda.jp/lab-education/market_news/mn_1041019_202610281539/) — 日経平均終値 63,954円、ドル円 157.82円、TOPIX 3,991.71、新発10年国債利回り 2.825%。円安けん制の発言
+- 2026-10-19〜23の週次: [chartmemo 週間マーケットまとめ 10月第4週](https://chartmemo.com/weekly-43.html) — 日経平均は10/22に約3か月ぶり63,000円割れ、10/23終値 62,693円。日本9月コアCPIは前年比+2.1%。WTIは100ドル超の局面。日銀は10/30会合で政策金利1.25%据え置きとの観測（報道ベースの仮説。結果は本レポート作成時点では未確定）
+- 前回ベースライン: `reports/2026-08-13-japan-domestic.md`
+
+| 動向 | 8月調査時 | 今回 | この戦略での扱い |
+|------|-----------|------|------------------|
+| 日経平均 | 約68,700円、52週DD約-5%の高値圏 | 履歴終値は62,000円台、52週高値からは約-13%。10/28終値は63,954円まで戻した | 指数買いは引き続き対象外。個別の調整だけを見る |
+| AI・半導体 | 指数を牽引し、多くはリバウンド途中 | 10/22に調整が入り、フジクラ・ディスコなどが底値圏へ | 倍率が高いままなら様子見。TDKのように倍率が落ちたものだけ監視を上げる |
+| 原油 | 8月上旬はWTI 80ドル台 | 10月下旬に100ドル超 | イオンなど薄利内需のマージン逆風が強い |
+| ドル円 | 約159円 | 約158円。円安けん制あり | 輸出採算の大逆転ではなく、小幅な円高。輸入コストはまだ重い |
+| 日銀 | 利上げ前倒し観測 | 10/30は1.25%据え置き観測が優勢。10年債利回りは2.8%台 | 不動産の即時ショックは8月より弱いが、高負債を買う理由にはならない |
+| 銀行・資源 | 物色の主役で高値圏 | 銀行は高値圏のまま。郵船・ENEOSは高値圏側 | モメンタム追いはしない |
 
 ### セグメント仮説の優先順位
 
-1. **内需・インバウンド** — マクロは追い風なのに株価が弱い銘柄が、戦略の中心
-2. **ヘルスケア** — パイプライン調整で売られた成長株。FCF次第
-3. **半導体・電子** — テーマは強いが『底』ではない銘柄が多い。押し目リスト
-4. **自動車** — 個別（日産）はディストレスト。完成車大手は高値圏
-5. 金融・商社 — 今は循環物色の買い側。底値回復の主戦場ではない
+1. **半導体・電子のうち倍率が落ちた銘柄** — 今回の新規枠。代表はTDK。フジクラとディスコは質があってもまだ高い
+2. **ヘルスケア** — 第一三共を監視継続。中外は質が高く、割安ではない
+3. **内需** — イオンは深いが質が悪化。他の小売・交通の多くは高値圏のまま
+4. **重工** — 三菱重工はFCFが厚く底値圏。倍率確認が先で、様子見
+5. **自動車のディストレス、金融の高値** — 日産は見送り。銀行は対象外
 
 ## 3. 定量スクリーニング（日本ユニバース全件）
 
@@ -458,7 +639,7 @@ def generate_japan_report(universe_path: str, profile: pd.DataFrame) -> str:
 
 {_list_md(rebound)}
 
-全件CSV: `data/screens/jp-profile-{utc_today()}.csv`
+全件CSV: `data/screens/jp-profile-{day}.csv`
 
 ## 4. セグメント別マップ
 
@@ -472,50 +653,60 @@ def generate_japan_report(universe_path: str, profile: pd.DataFrame) -> str:
 
 | シナリオ | 条件 | 日本ポートフォリオへの含意 |
 |----------|------|----------------------------|
-| ベース | 賃上げとインバウンドが続き、指数は高値もみ合い | 内需の底値圏を分割で監視。半導体は押し目待ち |
-| 強気 | 実質賃金加速、円が緩やかに円高、原油一服 | 小売・交通のマージン回復。底値圏の30-60%戻しで利確 |
-| 弱気 | 日銀の利上げ加速、原油高定着、海外需要失速 | 高負債内需と日産型ディストレストは撤退。現金厚めの電子部品へ退避 |
+| ベース | 日銀は据え置き、原油高は残る。半導体は決算でもみ合う | TDKと第一三共を小さく監視。高倍率のフジクラ・ディスコは急がない。イオンは短信待ち |
+| 強気 | 原油が落ち着き、AI投資の回収不安が後退。FCFが改善 | TDK・第一三共の下落幅の約30%戻しで部分利確を検討。高倍率株は倍率低下が続いてから |
+| 弱気 | 日銀が据え置き予想に反して利上げ、原油高が続き、AI調整が再燃 | イオン・日産・楽天・ソフトバンクGは撤退。倍率の高い調整株も買わない |
 
 ### エントリー条件（日本専用）
 
-- ステージが底値圏、または監視リスト以上
-- 流動比率 ≥ 1.0、かつ高レバレッジならFCFまたはネットキャッシュを確認
-- 直近短信で「構造的シェア喪失」ではなく、在庫・値引き・一時費用が主因と読める
-- 一括買いせず、決算翌週の押し目を1/3ずつ
+- ステージが底値圏
+- 定量スコアだけでなく、EV/EBITDAかPERが同業の高値株より低い
+- 流動比率 ≥ 1.0。FCF赤字なら、赤字の理由が在庫・投資であると短信で読める
+- 高レバレッジかつ営業利益率が低い銘柄は、スコアが監視リストでも見送り
+- 一括買いせず、10/30の日銀結果と次回決算のあとで分割
 
 ### 売却条件
 
 - 利確: 下落幅の約30%戻しで半分、約60%戻しで残りを再評価
-- 撤退: 増資・格下げ・主力事業の減損が続いた場合
+- 撤退: 増資、格下げ、主力事業の減損、FCF赤字の拡大
 - 時間: 2四半期連続で売上もマージンも改善しないなら仮説破棄
 
 ### やらないこと
 
-- 日経平均・TOPIXそのものの高値追い
-- メガバンク・総合商社のモメンタム追随（今の物色の主役であり、底値戦略ではない）
-- 日産のようなディストレストを「安い」だけで大型化すること
+- 日経平均・TOPIXそのものの調整を「底」とみなして指数を買うこと
+- メガバンク、高値圏の商社・海運のモメンタム追随
+- 日産・楽天・ソフトバンクGを、P/Bやドローダウンの深さだけで買うこと
+- フジクラやディスコを、ドローダウンが大きいという理由だけで割安扱いすること
 
 ## 7. 未確認事項
 
+- 10/29のFOMC結果と10/30の日銀決定（作成時点では未開催）
+- TDKのFCF赤字が在庫・設備投資か、構造的な悪化か（短信・有報）
+- フジクラとディスコの受注残。倍率が高止まりなら見送り継続
+- イオンの直近四半期で営業利益率とFCFが落ちた要因（原油、値引き、投資）
+- 第一三共のパイプラインとFCF赤字の持続期間
 - EDINETの有報XBRL一次パース（APIキーなしでは一覧取得が不安定）
 - 空売り残高、自社株買い枠の消化
-- イオン・セブンの再編・株主提案の一次資料精読
-- 資生堂・化粧品の中国需要とインバウンドの分解
-- 第一三共のパイプラインイベント・FCF赤字の持続期間
 
 ---
-*情報整理であり、特定銘柄の売買を推奨するものではない。円建て・日本居住者向けの調査メモ。*
+*情報整理であり、特定銘柄の売買を推奨するものではない。円建て・日本居住者向けの調査メモ。2026-08-13レポートの更新版。*
 """
     return report
 
 
 def write_japan_report(universe_path: str, out_dir: str, screen_dir: str) -> dict[str, Path]:
+    day = jst_today()
+    previous, previous_name = find_previous_profile(screen_dir, day)
     profile = profile_universe(universe_path)
     profile = attach_universe_meta(profile, universe_path)
-    day = utc_today()
     screen_path = Path(screen_dir) / f"jp-profile-{day}.csv"
     save_screen(profile, str(screen_path))
-    md = generate_japan_report(universe_path, profile)
+    md = generate_japan_report(
+        universe_path,
+        profile,
+        previous=previous,
+        previous_name=previous_name,
+    )
     report_path = Path(out_dir) / f"{day}-japan-domestic.md"
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(md, encoding="utf-8")
