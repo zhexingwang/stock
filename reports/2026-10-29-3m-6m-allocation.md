@@ -1,6 +1,6 @@
 # 300万円・半年の配分仮説（2026-10-29）
 
-> この表は改訂前の仮説として残す。2026-10-29 の見直しで、三菱UFJと第一三共を半年枠から外した。現行の配分は `reports/2026-10-29-allocation-revision.md` と `data/screens/allocation-2026-10-29-3m-revised.csv`。
+> この表は改訂前の仮説として残す。2026-10-29 の見直しで、三菱UFJと第一三共を半年枠から外した。現行の配分は `reports/2026-10-29-allocation-revision.md` と `data/screens/allocation-2026-10-29-3m-revised.csv`。弱気でもプラスにしたい別案は `reports/2026-10-29-bear-plus-plan.md`。
 
 - 作成: 2026-10-29 朝（日本時間）。個別株の参考価格は 2026-10-28 終値
 - 元データ: `data/screens/jp-profile-2026-10-29.csv`（Yahoo Finance）
