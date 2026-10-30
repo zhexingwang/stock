@@ -1,0 +1,4 @@
+{
+  "install": "sudo apt-get update -qq && sudo apt-get install -y -qq python3.12-venv python3-pip\npython3 -m venv .venv\n.venv/bin/pip install -U pip\n.venv/bin/pip install -r requirements.txt\n.venv/bin/pip install -e .",
+  "start": "echo 'stock-agent ready'"
+}

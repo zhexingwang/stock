@@ -1,0 +1,8 @@
+ticker,name_ja,shares,ref_price_jpy,ref_amount_jpy,price_as_of,buy_from,gate_base,gate_low,gate_high,earnings,stop_minus20,take_half_plus30,note
+6762.T,TDK,300,2572,771600,2026-10-30,2026-11-02,close_2026-10-30,2469,2649,2026-10-30 after close; FY guidance raised,2058,3344,H1 OCF +785.8 oku; H1 OCF+ICF about -230 oku
+4063.T,信越化学,100,5966,596600,2026-10-30,2026-11-02,close_2026-10-30,5727,6145,2026-10-27; H1 OP +15.6pct,4773,7756,
+6503.T,三菱電機,100,4640,464000,2026-10-30,2026-11-02,close_2026-10-30,4454,4779,2026-10-30 after close; adj OP raised; buyback 200bn,3712,6032,net income cut by 100bn impairment
+1605.T,INPEX,100,4065,406500,2026-10-30,2026-11-13,close_2026-11-12,,,2026-11-12 15:30,3252,5284,gate set after earnings; deadline 2026-11-20
+8306.T,三菱UFJ,100,3447,344700,2026-10-30,2026-11-16,close_2026-11-13,,,2026-11-13,2758,4481,gate set after earnings; deadline 2026-11-20
+CASH,現金,0,,416600,2026-10-30,,,,,,,,
+4568.T,第一三共,0,2754,0,2026-10-30,,,,,2026-10-30; beat,,,not in this book
