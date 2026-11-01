@@ -5,6 +5,7 @@
 - 株価: Yahoo Finance（`python -m stock_agent analyze`、2026-10-30 終値）。夜間PTSは Yahoo!ファイナンス（ジャパンネクスト J-Market、17時47〜49分）
 - 置き換えるもの: `reports/2026-10-30-boj-result.md` の「11月2日に5銘柄を埋める」部分。株数の目標は `reports/2026-10-29-allocation-revision.md` のまま
 - これは売買の指示ではない。半年後の利益は保証しない
+- 11月2日朝: 日経先物が見送りの線を下回り、当日は見送りの見込み。次の判定は11月4日。`reports/2026-11-02-morning-check.md`
 
 ## 1. 結論サマリ
 
