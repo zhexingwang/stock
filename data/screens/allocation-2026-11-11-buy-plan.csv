@@ -1,0 +1,7 @@
+ticker,name,shares,close_2026-11-11_1530,band_low,band_high,amount_at_close,amount_at_cap,first_day,note
+6762.T,TDK,300,2365.5,2270,2436,709650,730800,2026-11-12,yen truncated
+4063.T,信越化学,100,5709,5480,5880,570900,588000,2026-11-12,yen truncated
+6503.T,三菱電機,100,4917,4720,5064,491700,506400,2026-11-12,yen truncated
+1605.T,INPEX,100,3571,,,,357100,,2026-11-13,band from 2026-11-12 close
+8306.T,三菱UFJ,100,3502,,,,350200,,2026-11-16,band from 2026-11-13 close
+,cash,,520450,,,,,,
