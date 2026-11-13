@@ -1,0 +1,10 @@
+indicator,when,baseline,class_a,class_b,class_c,note
+policy_rate,at_release,1.25pct,hold_1.25,hold_1.25,hike_to_1.50_or_more,worst class wins
+statement,at_release,n/a,no_dated_december_hike,underlying_inflation_at_2pct_and_faster_hikes,hike_done,outlook basic view same time
+vote,at_release,n/a,hike_dissents_0_or_1,hike_dissents_2_plus,hike_is_majority,September meeting had dissents against the hike
+usdjpy,plus_30min,level_just_before_release,yen_stronger_under_1,yen_stronger_1_to_under_2,yen_stronger_2_or_more,yen weaker counts as A
+jgb_10y,plus_30min,yield_just_before_release,up_under_5bp,up_5_to_under_10bp,up_10bp_or_more,yield down counts as A
+nikkei,plus_30min,price_just_before_release,down_under_1pct,down_1_to_under_2.5pct,down_2.5pct_or_more,cash or futures; up counts as A
+name_gate,same_session,close_2026-10-29,minus4_to_plus3pct,for_B_only_minus4_to_0,deeper_than_minus7_skip_that_name,one name does not flip the book
+time_gate,statement_clock,jst,statement_by_1430_can_trade,statement_by_1430_can_trade_partial,statement_after_1430_no_same_day_order,presser_1530_is_for_Nov2
+entry_deadline,jst,continuous_auction_ends_1525,orders_by_1520,orders_by_1520,no_order,pre-closing 15:25-15:30 JPX

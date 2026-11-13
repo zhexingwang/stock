@@ -1,0 +1,27 @@
+scenario,when,ticker,name_ja,shares,ref_price_jpy,amount_jpy,weight,price_as_of,gate,note
+A,2026-10-30_by_1520,6762.T,TDK,300,2790.5,837150,0.2791,2026-10-28,close_1029_minus4_to_plus3,if 100 already held buy 200 more
+A,2026-10-30_by_1520,4063.T,信越化学,100,6004,600400,0.2001,2026-10-28,close_1029_minus4_to_plus3,
+A,2026-10-30_by_1520,6503.T,三菱電機,100,4811,481100,0.1604,2026-10-28,close_1029_minus4_to_plus3,
+A,2026-10-30_by_1520,1605.T,INPEX,100,3969,396900,0.1323,2026-10-28,close_1029_minus4_to_plus3,first cut if budget exceeds 3m
+A,2026-10-30_by_1520,8306.T,三菱UFJ,100,3377,337700,0.1126,2026-10-28,close_1029_minus4_to_plus3,second cut
+A,2026-10-30_by_1520,CASH,現金,0,,346750,0.1156,2026-10-28,,
+A,2026-10-30_by_1520,4568.T,第一三共,0,,0,0,2026-10-28,never,earnings 13:00 do not use this cash
+B_sameday,2026-10-30_by_1520,6762.T,TDK,100,2790.5,279050,0.0930,2026-10-28,close_1029_minus4_to_0,skip if already held 100
+B_sameday,2026-10-30_by_1520,6503.T,三菱電機,100,4811,481100,0.1604,2026-10-28,close_1029_minus4_to_0,
+B_sameday,2026-10-30_by_1520,4063.T,信越化学,0,,0,0,2026-10-28,none,
+B_sameday,2026-10-30_by_1520,1605.T,INPEX,0,,0,0,2026-10-28,none,
+B_sameday,2026-10-30_by_1520,8306.T,三菱UFJ,0,,0,0,2026-10-28,none,
+B_sameday,2026-10-30_by_1520,4568.T,第一三共,0,,0,0,2026-10-28,never,
+B_sameday,2026-10-30_by_1520,CASH,現金,0,,2239850,0.7466,2026-10-28,,if both names fail the gate cash stays 3000000
+B_next,2026-11-02_open,6762.T,TDK,200,2790.5,558100,0.1860,2026-10-28,close_1030_minus4_to_plus3,only if Nov2 class is not C; total shares 300
+B_next,2026-11-02_open,6503.T,三菱電機,0,4811,0,0,2026-10-28,close_1030_minus4_to_plus3,add 100 only if not filled on Oct30
+B_next,2026-11-02_open,4063.T,信越化学,100,6004,600400,0.2001,2026-10-28,close_1030_minus4_to_plus3,
+B_next,2026-11-02_open,1605.T,INPEX,100,3969,396900,0.1323,2026-10-28,close_1030_minus4_to_plus3,
+B_next,2026-11-02_open,8306.T,三菱UFJ,100,3377,337700,0.1126,2026-10-28,close_1030_minus4_to_plus3,
+C_sameday,2026-10-30,CASH,現金,0,,3000000,1,2026-10-28,no_order,
+C_next_A,2026-11-02,BASKET_A,区分Aの5銘柄,700, ,2653250,0.8844,2026-10-28,rerun_six_indicators,same shares as scenario A
+C_next_B,2026-11-02,6762.T,TDK,100,2790.5,279050,0.0930,2026-10-28,close_1030_minus4_to_0,
+C_next_B,2026-11-02,6503.T,三菱電機,100,4811,481100,0.1604,2026-10-28,close_1030_minus4_to_0,
+C_next_B,2026-11-02,4063.T,信越化学,100,6004,600400,0.2001,2026-10-28,close_1030_minus4_to_0,
+C_next_B,2026-11-02,CASH,現金,0,,1639450,0.5465,2026-10-28,,no MUFG no INPEX
+C_next_C,2026-11-02,CASH,現金,0,,3000000,1,2026-10-28,no_order,

@@ -1,0 +1,18 @@
+item,value,class,source,asof_jst
+policy_rate,hold_1.25,A,NTV 12:05 and Nikkei 12:02,2026-10-30
+statement,underlying_inflation_broadly_consistent_with_2pct_no_dated_december_hike,A,Nikkei 12:02,2026-10-30
+vote,8_for_hold_1_takata_for_1.50,A,Nikkei and Matsui 15:42,2026-10-30
+usdjpy_noon,157.57-157.59,A,Jiji 11:41,2026-10-30
+usdjpy_post_low,157.12,A,Traders Web 15:46,2026-10-30
+usdjpy_1546,157.61,A,Traders Web 15:46,2026-10-30
+jgb_10y,2.770_down_6.5bp,A,Matsui 15:42,2026-10-30
+nikkei_morning,63019.78_down_2.54pct_vs_prev,pre_decision,Nikkei 11:41,2026-10-30
+nikkei_close,63290.11_up_0.43pct_vs_morning_down_2.12pct_vs_prev,A,Nikkei indexes and Nikkei 15:40,2026-10-30
+book_class,A,A,worst of six indicators,2026-10-30
+presser,each_meeting_including_december_not_a_dated_hike,no_downgrade,Hokkoku 16:09 and Yomiuri 16:28,2026-10-30
+6762.T,2572_vs_2772_minus_7.2pct,skip_friday,Yahoo Finance,2026-10-30
+4063.T,5966_vs_6010_minus_0.7pct,buy_100_if_filled_friday,Yahoo Finance,2026-10-30
+6503.T,4640_vs_4841_minus_4.2pct,skip_friday,Yahoo Finance,2026-10-30
+1605.T,4065_vs_4056_plus_0.2pct,buy_100_if_filled_friday,Yahoo Finance,2026-10-30
+8306.T,3447_vs_3464_minus_0.5pct,buy_100_if_filled_friday,Yahoo Finance,2026-10-30
+4568.T,2754_vs_2617.5_plus_5.2pct,not_in_book,Yahoo Finance,2026-10-30
